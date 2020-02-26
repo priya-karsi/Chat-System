@@ -13,6 +13,8 @@ import java.net.*;
 import java.io.*;
 import java.util.concurrent.TimeUnit;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -121,6 +123,36 @@ class Option {
                         System.out.println(info.name+" is typing to "+whotosend);
                         System.out.println("Typing done");
                             break;
+                        case "Broadcast":System.out.println("Inside Broadcast");
+                {
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Option.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                            String tobroadcast = info.br.readLine();
+                            HashMap temp = Hashuse.clients;
+                        Iterator iterator = temp.entrySet().iterator();
+                        while (iterator.hasNext()) {
+                             Map.Entry me2 = (Map.Entry) iterator.next();
+//                          System.out.println("Key: "+me2.getKey() + " & Value: " + me2.getValue());
+                            // sending each client that is active a message as sending message
+                            Information tempo = (Information) me2.getValue();
+                            tempo.pr.println("Incoming Message");
+                             try {
+                                Thread.sleep(100);
+                                System.out.println("5");
+                                tempo.pr.println(info.name);
+                                Thread.sleep(100);
+                                System.out.println("6");
+                                tempo.pr.println(tobroadcast);
+                                System.out.println("7");
+                                System.out.println("Done all the way");
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Option.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                        } 
 		}
 	}
 }

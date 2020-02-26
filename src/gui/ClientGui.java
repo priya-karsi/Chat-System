@@ -130,6 +130,11 @@ public class ClientGui extends javax.swing.JFrame {
         });
 
         jButton3.setText("BroadCast");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -187,6 +192,15 @@ public class ClientGui extends javax.swing.JFrame {
             Logger.getLogger(ClientGui.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jTextField2KeyPressed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        try {
+            // TODO add your handling code here:
+            Options.check(4, this);
+        } catch (IOException ex) {
+            Logger.getLogger(ClientGui.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -433,6 +447,12 @@ class Options{
                         ServerInfo.pr.println(ServerInfo.whotosend);
                         System.out.println(ServerInfo.whotosend);
                             break;
+                        case 4:System.out.println("4");
+                        ServerInfo.pr.println("Broadcast");
+                        String tobroadcast = cg.jTextField2.getText();
+                        cg.jTextField2.setText("");
+                        ServerInfo.pr.println("Hello");
+                        break;
 		}
 	}
         public static void inccheck(String opt, ClientGui cg) throws IOException {
@@ -447,7 +467,12 @@ class Options{
                 System.out.println("Says "+msg);
                 ClientInfos ci = ServerInfo.clients.get(client);
                 ci.addclientmsg(msg);
+                if(RelevantInfo.onfocus == ci) {
+                    ci.load();
+                }
+                else {
                 ci.incomingmsg();
+                }
                 break;
                 
                 case "Sending Who Is Online":System.out.println("Inside 2ns case");
