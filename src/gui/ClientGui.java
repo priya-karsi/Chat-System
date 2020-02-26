@@ -6,6 +6,8 @@
 package gui;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Point;
 import java.net.*;
 import java.io.*;
 import java.util.ArrayList;
@@ -15,11 +17,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 /**
  *
  * @author Sunil
@@ -73,6 +71,9 @@ public class ClientGui extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
+
+        jPanel2.setPreferredSize(new java.awt.Dimension(700, 573));
+        jPanel2.setRequestFocusEnabled(false);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -233,8 +234,6 @@ public class ClientGui extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
-                ClientGui cg = new ClientGui();
-                cg.setVisible(true);
                 try {
                     Socket s = new Socket("localhost",9999);
                     System.out.println("Connected");
@@ -243,6 +242,8 @@ public class ClientGui extends javax.swing.JFrame {
                     PrintWriter pr = new PrintWriter(s.getOutputStream(),true);
                     System.out.println(br.readLine());
                     String myself = userbr.readLine();
+                    ClientGui cg = new ClientGui();
+                    cg.setVisible(true);
                     pr.println(myself);
                     pr.flush();
                     Listen l = new Listen(s, cg);
@@ -392,9 +393,10 @@ class ClientInfos {
         int len = who.size();
         for (int i = 0; i < len ; i++) {
             JTextField jl = new JTextField(msgs.get(i));
-            jl.setSize(jl.getPreferredSize());
+            int length = msgs.get(i).length();
+            jl.setSize(length + 100, 40);
             if("me".equals(who.get(i))) {
-                jl.setLocation(600,i*40);
+                jl.setLocation(700 - length - 50,i*40);
             }
             else {
                 jl.setLocation(10,i*40);
@@ -437,6 +439,9 @@ class Options{
                                 System.out.println("3");
                                 ClientInfos ci = ServerInfo.clients.get(ServerInfo.whotosend);
                                 ci.addmymsg(msg);
+                                if(ci == RelevantInfo.onfocus) {
+                                    ci.load();
+                                }
 				break;
 
 			case 2:System.out.println("2");
@@ -466,12 +471,16 @@ class Options{
                 System.out.println("10");
                 System.out.println("Says "+msg);
                 ClientInfos ci = ServerInfo.clients.get(client);
+                if(ci != null) {
                 ci.addclientmsg(msg);
                 if(RelevantInfo.onfocus == ci) {
                     ci.load();
                 }
                 else {
                 ci.incomingmsg();
+                toast t = new toast(client + " says" + msg, 150, 400, cg);
+                t.showtoast();
+                }
                 }
                 break;
                 
@@ -499,12 +508,79 @@ class Options{
         }
 }
 
-//class Service {
-//    private ClientGui cg;
-//    Service(ClientGui cg) {
-//        this.cg = cg;
-//    }
-//    public static void load(String client) {
-//        
-//    }
-//}
+class toast extends JFrame { 
+  
+    //String of toast 
+    String s; 
+  
+    // JWindow 
+    JWindow w; 
+  
+    toast(String s, int x, int y, ClientGui cg) 
+    { 
+        this.s = s;
+        w = new JWindow(); 
+  
+        // make the background transparent 
+        w.setBackground(new Color(0, 0, 0, 0)); 
+  
+        // create a panel 
+        JPanel p = new JPanel() { 
+            public void paintComponent(Graphics g) 
+            { 
+                int wid = g.getFontMetrics().stringWidth(s); 
+                int hei = g.getFontMetrics().getHeight(); 
+                // draw the boundary of the toast and fill it 
+                g.setColor(Color.black); 
+                g.fillRect(10, 10, wid + 30, hei + 10); 
+                g.setColor(Color.black); 
+                g.drawRect(10, 10, wid + 30, hei + 10); 
+  
+                // set the color of text 
+                g.setColor(new Color(255, 255, 255, 240)); 
+                g.drawString(s, 25, 27); 
+                int t = 250; 
+  
+                // draw the shadow of the toast 
+                for (int i = 0; i < 4; i++) { 
+                    t -= 60; 
+                    g.setColor(new Color(0, 0, 0, t)); 
+                    g.drawRect(10 - i, 10 - i, wid + 30 + i * 2, 
+                               hei + 10 + i * 2); 
+                } 
+            } 
+        }; 
+  
+        w.add(p); 
+        Point location = cg.getLocation();
+        System.out.println(cg.getLocation());
+        int xdist = location.x;
+        int ydist = location.y;
+        w.setLocation(xdist + 950 - this.s.length(), ydist + 30); 
+        w.setSize(300, 100); 
+    } 
+  
+    // function to pop up the toast 
+    void showtoast() 
+    { 
+        try { 
+            w.setOpacity(1); 
+            w.setVisible(true); 
+  
+            // wait for some time 
+            Thread.sleep(2000); 
+  
+            // make the message disappear  slowly 
+            for (double d = 1.0; d > 0.2; d -= 0.1) { 
+                Thread.sleep(100); 
+                w.setOpacity((float)d); 
+            } 
+  
+            // set the visibility to false 
+            w.setVisible(false); 
+        } 
+        catch (Exception e) { 
+            System.out.println(e.getMessage()); 
+        } 
+    } 
+}
