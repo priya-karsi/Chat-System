@@ -18,6 +18,8 @@ import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 /**
  *
  * @author Sunil
@@ -295,16 +297,17 @@ public void addclients(ArrayList clientsstr) {
                 ClientInfos ci = ServerInfo.clients.get(ServerInfo.whotosend);
                 ci.jbdefault();
                 ci.load();
+                RelevantInfo.onfocus = ci;
             }
         });
             ClientInfos ci = new ClientInfos((String) client, jb, this);
             ServerInfo.clients.put((String) client,ci);
             System.out.println(jb.getMinimumSize());
-            y ++;
+            y++;
          }        
-        jPanel1.setVisible(true);
+        jPanel1.revalidate();
+        jPanel1.repaint();
 }
-
 }
 
 
@@ -343,12 +346,15 @@ class ServerInfo {
         public static String whotosend;
 }
 
+class RelevantInfo {
+    public static ClientInfos onfocus;
+}
+
 class ClientInfos {
     String name;
     JButton jb;
     ArrayList<String> who = new ArrayList<>();
     ArrayList<String> msgs = new ArrayList<>();
-    ArrayList<JButton> temp = new ArrayList<>();
     ClientGui cg;
     ClientInfos(String name, JButton jb,ClientGui cg) {
         this.name = name;
@@ -365,11 +371,13 @@ class ClientInfos {
     }
     public void load() {
         cg.jPanel2.removeAll();
+        cg.jPanel2.revalidate();
+        cg.jPanel2.repaint();
         System.out.println(who);
         System.out.println(msgs);
         int len = who.size();
         for (int i = 0; i < len ; i++) {
-            JButton jl = new JButton(msgs.get(i));
+            JTextField jl = new JTextField(msgs.get(i));
             jl.setSize(jl.getPreferredSize());
             if("me".equals(who.get(i))) {
                 jl.setLocation(600,i*40);
@@ -379,14 +387,13 @@ class ClientInfos {
             }
             cg.jPanel2.add(jl);
             jl.setVisible(true);
-            temp.add(jl);
         }
-        cg.jPanel2.setVisible(true);
+        cg.jPanel2.revalidate();
     }
     public void typing() {
         this.jb.setBackground(Color.red);
         try {
-            Thread.sleep(100);
+            Thread.sleep(50);
         } catch (InterruptedException ex) {
             Logger.getLogger(ClientInfos.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -401,9 +408,9 @@ class ClientInfos {
 }
 
 class Options{
-	public static void printoptions() {
-		System.out.println("1.Send Message\n2.View Who is online.");
-	}
+//	public static void printoptions() {
+//		System.out.println("1.Send Message\n2.View Who is online.");
+//	}
 	public static void check(int opt,ClientGui cg) throws IOException {
 		switch (opt) {
 			case 1:ServerInfo.pr.println("Send Message");
@@ -411,6 +418,7 @@ class Options{
 				ServerInfo.pr.println(ServerInfo.whotosend);
                                 System.out.println("2");
 				String msg = cg.jTextField2.getText();
+                                cg.jTextField2.setText("");
 				ServerInfo.pr.println(msg);
                                 System.out.println("3");
                                 ClientInfos ci = ServerInfo.clients.get(ServerInfo.whotosend);
